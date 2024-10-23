@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "SuiteDash Frame Modifier",
+    "version": "1.0",
+    "description": "Modifies headers to allow embedding SuiteDash in an iframe.",
+    "permissions": [
+      "webRequest",
+      "webRequestBlocking",
+      "declarativeNetRequest",
+      "https://power.msbglobals.com/*"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "host_permissions": [
+      "*://power.msbglobals.com/*"
+    ]
+  }
+  

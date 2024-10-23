@@ -1,95 +1,65 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+
+export default function HomePage() {
+  const [iframeBlocked, setIframeBlocked] = useState(false);
+
+  useEffect(() => {
+    const iframe = document.getElementById("iframe");
+
+    const handleIframeLoad = () => {
+      try {
+        // Test if the iframe is successfully loaded by checking its window property.
+        if (iframe.contentWindow.location.href === 'about:blank') {
+          setIframeBlocked(true); // If we can't access the iframe content, it's blocked.
+        }
+      } catch (error) {
+        console.error("Iframe blocked due to X-Frame-Options or CSP:", error);
+        setIframeBlocked(true); // Set blocked status if accessing the iframe fails.
+      }
+    };
+
+    iframe.addEventListener('load', handleIframeLoad);
+
+    return () => {
+      iframe.removeEventListener('load', handleIframeLoad);
+    };
+  }, []);
+
+  const handleMessage = (event) => {
+    if (event.data === 'login_success') {
+      window.open('https://power.msbglobals.com', '_blank'); // Open the dashboard in a new tab if login succeeds.
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  // Redirect to the external site in a new tab if iframe is blocked
+  useEffect(() => {
+    if (iframeBlocked) {
+      window.open('https://power.msbglobals.com', '_blank'); // Automatically open in a new tab
+    }
+  }, [iframeBlocked]);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="w-full h-screen">
+      <iframe
+        id="iframe"
+        height="1000px"
+        width="100%"
+        src="/site/login"
+        className="w-full h-full border-0"
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
     </div>
   );
 }
